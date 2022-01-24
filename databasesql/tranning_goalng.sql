@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th1 22, 2022 lúc 04:04 PM
+-- Thời gian đã tạo: Th1 24, 2022 lúc 11:46 AM
 -- Phiên bản máy phục vụ: 10.4.22-MariaDB
 -- Phiên bản PHP: 8.0.13
 
@@ -54,6 +54,13 @@ CREATE TABLE `t_coupon` (
   `is_delete` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Đang đổ dữ liệu cho bảng `t_coupon`
+--
+
+INSERT INTO `t_coupon` (`id`, `code`, `name`, `discount`, `date_expiry`, `note`, `type`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 'abcdef123', 'giam gia nguoi moi', 10, '2022-01-26 04:32:55', NULL, 1, '2022-01-24 04:32:55', '2022-01-24 04:32:55', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -86,12 +93,19 @@ CREATE TABLE `t_order` (
   `amount` float NOT NULL DEFAULT 1,
   `note` text DEFAULT NULL,
   `size` tinyint(4) NOT NULL DEFAULT 0,
-  `shipment_date` int(11) NOT NULL,
+  `shipment_date` datetime NOT NULL,
   `status` tinyint(4) NOT NULL DEFAULT 0,
   `date_created` datetime NOT NULL,
   `date_update` datetime DEFAULT NULL,
   `is_delete` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Đang đổ dữ liệu cho bảng `t_order`
+--
+
+INSERT INTO `t_order` (`id`, `product_id`, `product_topping`, `user_id`, `payment_id`, `quantity`, `amount`, `note`, `size`, `shipment_date`, `status`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 15, 1, 22323, 12312, 1, 1, '23123', 0, '0000-00-00 00:00:00', 0, '2022-01-24 10:20:18', '2022-01-24 10:20:18', 0);
 
 -- --------------------------------------------------------
 
@@ -130,6 +144,13 @@ CREATE TABLE `t_product` (
   `is_delete` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Đang đổ dữ liệu cho bảng `t_product`
+--
+
+INSERT INTO `t_product` (`id`, `category_id`, `name`, `id_suggest`, `price`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 1, 'tra lài', 0, 30000, '2022-01-24 05:03:29', '2022-01-24 05:03:29', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -138,12 +159,44 @@ CREATE TABLE `t_product` (
 
 CREATE TABLE `t_product_topping` (
   `id` int(11) NOT NULL,
-  `product-id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `topping_id` int(11) NOT NULL,
   `date_created` datetime NOT NULL,
   `date_update` datetime DEFAULT NULL,
   `is_delete` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Đang đổ dữ liệu cho bảng `t_product_topping`
+--
+
+INSERT INTO `t_product_topping` (`id`, `product_id`, `topping_id`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 15, 1, '2022-01-24 04:01:16', '2022-01-24 04:01:16', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `t_size_product`
+--
+
+CREATE TABLE `t_size_product` (
+  `id` int(11) NOT NULL,
+  `name` varchar(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `price` float NOT NULL,
+  `date_created` datetime NOT NULL,
+  `date_update` datetime NOT NULL,
+  `is_delete` tinyint(4) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Đang đổ dữ liệu cho bảng `t_size_product`
+--
+
+INSERT INTO `t_size_product` (`id`, `name`, `product_id`, `price`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 's', 1, 30000, '2022-01-24 10:43:36', '2022-01-24 10:43:36', 0),
+(2, 'm', 1, 30000, '2022-01-24 10:43:36', '2022-01-24 10:43:36', 0),
+(3, 'L', 1, 30000, '2022-01-24 10:43:36', '2022-01-24 10:43:36', 0);
 
 -- --------------------------------------------------------
 
@@ -159,6 +212,15 @@ CREATE TABLE `t_topping` (
   `date_update` datetime DEFAULT NULL,
   `is_delete` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Đang đổ dữ liệu cho bảng `t_topping`
+--
+
+INSERT INTO `t_topping` (`id`, `name`, `price`, `date_created`, `date_update`, `is_delete`) VALUES
+(1, 'trân châu trắng', 3000, '2022-01-24 04:00:17', '2022-01-24 04:00:17', 0),
+(2, 'trân châu đen', 3000, '2022-01-24 04:00:17', '2022-01-24 04:00:17', 0),
+(3, 'trân châu đỏ', 3000, '2022-01-24 04:00:17', '2022-01-24 04:00:17', 0);
 
 -- --------------------------------------------------------
 
@@ -226,9 +288,13 @@ ALTER TABLE `t_product`
 -- Chỉ mục cho bảng `t_product_topping`
 --
 ALTER TABLE `t_product_topping`
-  ADD UNIQUE KEY `id` (`id`),
-  ADD UNIQUE KEY `topping_id` (`topping_id`),
-  ADD UNIQUE KEY `product-id` (`product-id`);
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Chỉ mục cho bảng `t_size_product`
+--
+ALTER TABLE `t_size_product`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Chỉ mục cho bảng `t_topping`
@@ -256,7 +322,7 @@ ALTER TABLE `t_category`
 -- AUTO_INCREMENT cho bảng `t_coupon`
 --
 ALTER TABLE `t_coupon`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `t_credit_card`
@@ -268,7 +334,7 @@ ALTER TABLE `t_credit_card`
 -- AUTO_INCREMENT cho bảng `t_order`
 --
 ALTER TABLE `t_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `t_payment`
@@ -280,19 +346,25 @@ ALTER TABLE `t_payment`
 -- AUTO_INCREMENT cho bảng `t_product`
 --
 ALTER TABLE `t_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `t_product_topping`
 --
 ALTER TABLE `t_product_topping`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT cho bảng `t_size_product`
+--
+ALTER TABLE `t_size_product`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `t_topping`
 --
 ALTER TABLE `t_topping`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `t_user`
