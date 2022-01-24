@@ -1,1 +1,1 @@
-# tranning_golang
+# go mod init tranning_golang
