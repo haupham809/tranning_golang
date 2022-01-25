@@ -21,7 +21,7 @@ func main() {
 	e.POST("/savecreditcard", payment.SaveCreditCard)
 	e.POST("/updatepaymentcancel", payment.Updatepaymentcancel)
 	e.POST("/refundmomo", payment.Refundmomo)
-	
+	e.PUT("/updateorder", order.UpdateOrder)
 	e.POST("/order", order.Order)
 	e.GET("/products", product.GetProduct)
 	e.GET("/couponbyid", coupon.GetCouponByUserLogin)
