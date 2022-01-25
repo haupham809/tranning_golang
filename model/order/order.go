@@ -28,6 +28,19 @@ type T_order struct {
 	Date_update        time.Time `json:"date_update"`
 	Is_delete          int       `json:"is_delete"`
 }
+type T_payment struct {
+	ID                int       `json:"id"`
+	User_id           string    `json:"user_id"`
+	Credit_card_id    string    `json:"credit_card_id"`
+	Coupon_id         string    `json:"coupon_id"`
+	Total_amount      string    `json:"total_amount"`
+	Payment_result_id int       `json:"payment_result_id"`
+	Pament_date       time.Time `json:"pament_date"`
+	Refund_date       time.Time `json:"refund_date"`
+	Is_refund         int       `json:"is_refund"`
+	Date_created      time.Time `json:"date_created"`
+	Date_update       time.Time `json:"date_update"`
+}
 
 //kiểm tra đơn hang tồn tại
 func checkorder(id int) int {
@@ -46,7 +59,7 @@ type Jsonbody struct {
 func Order(c echo.Context) error {
 	if connectdb.Connnectdb() {
 		tx := connectdb.DB.Begin()
-		var order T_order
+		var order []T_order
 		json.NewDecoder(c.Request().Body).Decode(&order)
 		err := tx.Table("t_order").Create(&order).Error
 		if err != nil {
