@@ -267,7 +267,6 @@ ALTER TABLE `t_credit_card`
 -- Chỉ mục cho bảng `t_order`
 --
 ALTER TABLE `t_order`
-  ADD PRIMARY KEY (`product_id`),
   ADD UNIQUE KEY `id` (`id`);
 
 --
