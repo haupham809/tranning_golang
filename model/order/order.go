@@ -45,7 +45,6 @@ type Jsonbody struct {
 func Updateordercancel(c echo.Context) error {
 	if (connectdb.Connnectdb()){
 		tx := connectdb.DB.Begin()
-		
 			var id Jsonbody
 			json.NewDecoder(c.Request().Body).Decode(&id)
 			

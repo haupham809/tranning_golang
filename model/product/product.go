@@ -40,7 +40,7 @@ func DetailProduct(c echo.Context) error {
 				Message:"requied product id ",
 			}
 			writelog.Writelog(errorconnnet)
-			return  c.JSON(http.StatusOK, errorconnnet)
+			return  c.JSON(http.StatusBadRequest, errorconnnet)
 		 }else{
 			 connectdb.DB.Raw("select * from t_product where is_delete = 0 and id = "+product_id).Scan(&result)
 			 return c.JSON(http.StatusOK, result)
@@ -55,7 +55,7 @@ func DetailProduct(c echo.Context) error {
 			Message:"database disconnect",
 		}
 		writelog.Writelog(errorconnnet)
-		return  c.JSON(http.StatusOK, errorconnnet)
+		return  c.JSON(http.StatusBadRequest, errorconnnet)
 	}
  
 
