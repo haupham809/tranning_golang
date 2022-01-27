@@ -39,3 +39,17 @@ func Isletterscharacters(){
 
 	})
 }
+
+func SqlInjection(){
+	govalidator.TagMap["SqlInjection"] = govalidator.Validator(func(str string) bool {
+		for i := 0; i < len(str); i++ {
+			m, _ := regexp.MatchString("[\\s]+$", str[i:i+1])
+			if m {
+				return false
+			}
+		}
+
+		return true
+
+	})
+}

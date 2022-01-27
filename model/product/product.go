@@ -44,7 +44,7 @@ func DetailProduct(c echo.Context) error {
 			writelog.Writelog(errorconnnet)
 			return  c.JSON(http.StatusBadRequest, errorconnnet)
 		 }else{
-			 connectdb.DB.Raw("select * from t_product where is_delete = 0 and id = "+product_id).Scan(&result)
+			 connectdb.DB.Select(" * ").Table("t_product").Where("is_delete = ?",0).Where("id =  ?" ,product_id).Scan(&result)
 			 return c.JSON(http.StatusOK, result)
 
 		}
@@ -66,7 +66,7 @@ func GetProduct(c echo.Context) error {
 
 	if connectdb.Connnectdb() {
 		var result []T_product
-		connectdb.DB.Raw("select * from t_product where is_delete = 0").Scan(&result)
+		connectdb.DB.Select("* ").Table(" t_product").Where("is_delete = ?",0).Scan(&result)
 		return c.JSON(http.StatusOK, result)
 
 	} else {
@@ -85,7 +85,7 @@ func GetProductSuggest(c echo.Context) error {
 
 	if connectdb.Connnectdb() {
 		var result []T_product
-		connectdb.DB.Raw("select * from t_product where is_delete = 0 and id_suggest = 1").Scan(&result)
+		connectdb.DB.Select("* ").Table(" t_product").Where("is_delete = ?" ,0).Where("id_suggest = 1").Scan(&result)
 		return c.JSON(http.StatusOK, result)
 
 	} else {
@@ -113,7 +113,7 @@ func SizeProduct(c echo.Context) error {
 			writelog.Writelog(errorconnnet)
 			return c.JSON(http.StatusBadRequest, errorconnnet)
 		} else {
-			connectdb.DB.Raw("select * from t_size_product where is_delete = 0 and product_id = " + product_id).Scan(&result)
+			connectdb.DB.Select("* ").Where("t_size_product").Where("is_delete = 0").Where("product_id = ?", product_id).Scan(&result)
 			return c.JSON(http.StatusOK, result)
 
 		}

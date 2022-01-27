@@ -10,26 +10,28 @@ import (
 	"github.com/asaskevich/govalidator"
 	"fmt"
 	"tranning_golang/model/order"
+	"tranning_golang/model/validation"
+	
 )
 type Payment struct {
 	ID int 
-	UserID int `valid:"required"`
-	Credit_card_id int `valid:"required"`
-	Coupon_id int `valid:"required"`
-	Total_amount float64 `valid:"required"`
-	Payment_result_id string `valid:"required"`
+	UserID int `valid:"required,SqlInjection"`
+	Credit_card_id int `valid:"required,SqlInjection"`
+	Coupon_id int `valid:"required,SqlInjection"`
+	Total_amount float64`valid:"required,SqlInjection"`
+	Payment_result_id string `valid:"required,SqlInjection"`
 	Payment_date time.Time 
 	Refund_date time.Time 
-	Is_refund int `valid:"required"`
+	Is_refund int `valid:"required,SqlInjection"`
 	Date_created time.Time 
 	Date_update time.Time 
 
 }
 type Creditcard struct {
 	ID int 
-	Cc_number string `valid:"required"`
+	Cc_number string `valid:"required,SqlInjection"`
 	Cc_expiry time.Time 
-	Cc_type_payment int `valid:"required"`
+	Cc_type_payment int`valid:"required,SqlInjection"`
 	Date_created time.Time 
 	Date_update time.Time 
 	Is_delete  int 
@@ -38,7 +40,7 @@ type Creditcard struct {
 func checkpaymentresultid(Payment_result_id string) int {
 	var result []Payment
 
-	connectdb.DB.Raw("SELECT  * FROM t_payment where payment_result_id = "+Payment_result_id ).Scan(&result)
+	connectdb.DB.Select("*").Table("t_payment").Where("payment_result_id =  ?",Payment_result_id ).Scan(&result)
 	
 	return  len(result)
 }
@@ -103,12 +105,12 @@ func SavePayment(c echo.Context) error {
 
 //hoàn tiền thành công
 type Jsonbody struct {
-	ID string `valid:"required"`
+	ID string `valid:"required,SqlInjection"`
 }
 func checkpaymentid(id string) int {
 	var result []Payment
 
-	connectdb.DB.Raw("SELECT  * FROM t_payment where id = "+id ).Scan(&result)
+	connectdb.DB.Select("* ").Table("t_payment ").Where("id = ?",id ).Scan(&result)
 
 	return  len(result)
 }
@@ -118,6 +120,7 @@ func Updatepaymentcancel(c echo.Context) error {
 		tx := connectdb.DB.Begin()
 			var id Jsonbody
 			json.NewDecoder(c.Request().Body).Decode(&id)
+			checkvalidation.SqlInjection()
 			if _, err := govalidator.ValidateStruct(id); err != nil {
 				return  c.JSON(http.StatusCreated, err)
 			}else{
@@ -162,7 +165,7 @@ func Updatepaymentcancel(c echo.Context) error {
 //luu thông tin credit
 func checkcreditcard(ccnumber string) int {
 	var result []Creditcard
-	connectdb.DB.Raw("SELECT  * FROM t_credit_card where cc_number = "+ccnumber ).Scan(&result)
+	connectdb.DB.Select("*").Table(" t_credit_card ").Where(" cc_number = ? ",ccnumber ).Scan(&result)
 	return  len(result)
 }
 func SaveCreditCard(c echo.Context) error {
@@ -170,7 +173,7 @@ func SaveCreditCard(c echo.Context) error {
 		tx := connectdb.DB.Begin()
 		var card Creditcard
 		json.NewDecoder(c.Request().Body).Decode(&card)
-		
+		checkvalidation.SqlInjection()
 		if _, err := govalidator.ValidateStruct(card); err != nil {
 			return  c.JSON(http.StatusCreated, err)
 		}else{
@@ -236,13 +239,16 @@ type Momobody struct {
 func Getpayment(id string) order.T_order{
 	var result []order.T_order
 
-	connectdb.DB.Raw("SELECT  * FROM t_order where id = "+id ).Scan(&result)
+	connectdb.DB.Select("* ").Table(" t_order ").Where("id =  ?",id ).Scan(&result)
 	return  result[0]
 }
+
 func Refundmomo(c echo.Context) error {
+	
 	if(connectdb.Connnectdb()){
 		var id Jsonbody
 		json.NewDecoder(c.Request().Body).Decode(&id)
+		checkvalidation.SqlInjection()
 		if _, err := govalidator.ValidateStruct(id); err != nil {
 			return  c.JSON(http.StatusCreated, err)
 		}else{

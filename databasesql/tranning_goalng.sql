@@ -120,7 +120,7 @@ CREATE TABLE `t_payment` (
   `coupon_id` int(11) NOT NULL,
   `total_amount` float NOT NULL,
   `payment_result_id` varchar(255) NOT NULL,
-  `pament_date` datetime NOT NULL,
+  `payment_date` datetime NOT NULL,
   `refund_date` datetime NOT NULL,
   `is_refund` tinyint(4) NOT NULL DEFAULT 0,
   `date_created` datetime NOT NULL,

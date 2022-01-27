@@ -47,7 +47,7 @@ func checkorder(id int) int {
 
 	var result []T_order
 
-	connectdb.DB.Raw("SELECT  * FROM t_order where id = " + strconv.Itoa(id)).Scan(&result)
+	connectdb.DB.Select("* ").Table("t_order").Where("id = ?", strconv.Itoa(id)).Scan(&result)
 
 	return len(result)
 }

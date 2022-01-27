@@ -25,26 +25,32 @@ import (
 // 	Is_deleted int `json:"is_deleted"`
 // }
 type ToppingProduct struct {
-	ID int `json:"id"`
-	Name string `json:"name"`
-	Price float64 `json:"Price"`
+	ID int `valid:"required,SqlInjection"`
+	Name string  `valid:"required,SqlInjection"`
+	Price float64  `valid:"required,SqlInjection"`
 }
 //o       Danh sách topping theo sản phẩm.
 func ToppingForProduct(c echo.Context) error {
 	if(connectdb.Connnectdb()){
 		var result []ToppingProduct
 		id := c.QueryParam("product_id")
-		if(len(id) == 0){
-			errorconnnet := messageapi.Objectapi{
-				Status:500,
-				Message:"requied product id ",
-			}
-			writelog.Writelog(errorconnnet)
-			return  c.JSON(http.StatusBadRequest, errorconnnet)
-		}else {
-			connectdb.DB.Raw("SELECT  t_topping.name ,t_topping.price ,t_product_topping.id FROM t_topping ,t_product_topping where t_topping.id = t_product_topping.topping_id and t_topping.is_delete = 0 and t_product_topping.is_delete = 0 and   t_product_topping.product_id = " + id).Scan(&result)
-			return c.JSON(http.StatusOK, result)
+		checkvalidation.SqlInjection()
+		if _, err := govalidator.ValidateStruct(code); err != nil {
+			
+			return  c.JSON(http.StatusBadRequest, err)
+		}else{
+			if(len(id) == 0){
+				errorconnnet := messageapi.Objectapi{
+					Status:500,
+					Message:"requied product id ",
+				}
+				writelog.Writelog(errorconnnet)
+				return  c.JSON(http.StatusBadRequest, errorconnnet)
+			}else {
+				connectdb.DB.Select("   t_topping.name ,t_topping.price ,t_product_topping.id  ").Table("t_topping ,t_product_topping ").Where("t_topping.id = t_product_topping.topping_id and t_topping.is_delete = 0 and t_product_topping.is_delete = 0 ").Where("t_product_topping.product_id =  ?",id).Scan(&result)
+				return c.JSON(http.StatusOK, result)
 
+			}
 		}
 		
 	}else {

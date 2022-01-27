@@ -13,7 +13,7 @@ func makeTimestamp() int64 {
 }
 func Writelog(o messageapi.Objectapi){
 	
-	filename :=  strconv.Itoa(rand.Intn(100000000)) +strconv.FormatInt(makeTimestamp(),10)
+	filename := "log"+ strconv.Itoa(rand.Intn(100000000)) +strconv.FormatInt(makeTimestamp(),10)
 	fmt.Println(filename)
 	file, _  := os.OpenFile("../log/"+filename+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	log.SetOutput(file)
