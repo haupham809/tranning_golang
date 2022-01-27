@@ -60,18 +60,20 @@ func GetCoupon(c echo.Context) error {
 	}
 
 }
-
+type Pramtypecoupon struct {
+	Type_coupon string  `valid:"required,SqlInjection"`
+}
 func GetCouponByUserLogin(c echo.Context) error {
 	if connectdb.Connnectdb() {
 		var result []Coupon
-		var type_coupon int  `valid:"required,SqlInjection"`
-		type_coupon = c.QueryParam("type")
+		var type_coupon Pramtypecoupon
+		type_coupon.Type_coupon = c.QueryParam("type")
 		checkvalidation.SqlInjection()
-		if _, err := govalidator.ValidateStruct(code); err != nil {
+		if _, err := govalidator.ValidateStruct(type_coupon); err != nil {
 			
 			return  c.JSON(http.StatusBadRequest, err)
 		}else{
-			if len(type_coupon) == 0 {
+			if len(type_coupon.Type_coupon) == 0 {
 				errorconnnet := messageapi.Objectapi{
 					Status:  500,
 					Message: "requied type",
@@ -79,7 +81,7 @@ func GetCouponByUserLogin(c echo.Context) error {
 				writelog.Writelog(errorconnnet)
 				return c.JSON(http.StatusBadRequest, errorconnnet)
 			} else {
-				connectdb.DB.Select("* ").Table("t_coupon").Where("is_delete = ?",0).Where("type = ?",type_coupon).Scan(&result)
+				connectdb.DB.Select("* ").Table("t_coupon").Where("is_delete = ?",0).Where("type = ?",type_coupon.Type_coupon).Scan(&result)
 				return c.JSON(http.StatusOK, result)
 			}
 		}

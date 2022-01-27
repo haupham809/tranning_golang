@@ -2,13 +2,16 @@ package order
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 	"tranning_golang/model/connectdb"
 	"tranning_golang/model/messageapi"
 	"tranning_golang/model/writelog"
-
+	"tranning_golang/model/validation"
+	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 )
 
@@ -29,17 +32,21 @@ type T_order struct {
 	Is_delete          int       `json:"is_delete"`
 }
 type T_payment struct {
-	ID                int       `json:"id"`
-	User_id           string    `json:"user_id"`
-	Credit_card_id    string    `json:"credit_card_id"`
-	Coupon_id         string    `json:"coupon_id"`
-	Total_amount      string    `json:"total_amount"`
-	Payment_result_id int       `json:"payment_result_id"`
-	Pament_date       time.Time `json:"pament_date"`
-	Refund_date       time.Time `json:"refund_date"`
-	Is_refund         int       `json:"is_refund"`
-	Date_created      time.Time `json:"date_created"`
-	Date_update       time.Time `json:"date_update"`
+	ID                int
+	UserID            int     `valid:"required"`
+	Credit_card_id    int     `valid:"required"`
+	Coupon_id         int     `valid:"required"`
+	Total_amount      float64 `valid:"required"`
+	Payment_result_id string  `valid:"required"`
+	Payment_date      time.Time
+	Refund_date       time.Time
+	Is_refund         int `valid:"required"`
+	Date_created      time.Time
+	Date_update       time.Time
+}
+type UpdateOrder_Model struct {
+	ID         []int `valid:"required"`
+	Payment_id int   `valid:"required"`
 }
 
 //kiểm tra đơn hang tồn tại
@@ -53,15 +60,57 @@ func checkorder(id int) int {
 }
 
 type Jsonbody struct {
-	ID int
+	ID int `valid:"required,SqlInjection"`
 }
 
+func ConvertStrtoInt(str string) int {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		// handle error
+		fmt.Println(err)
+		os.Exit(2)
+	}
+	return i
+}
+func UpdateOrder(c echo.Context) error {
+	if connectdb.Connnectdb() {
+		tx := connectdb.DB.Begin()
+		var param UpdateOrder_Model
+		json.NewDecoder(c.Request().Body).Decode(&param)
+		
+		if _, err := govalidator.ValidateStruct(param); err != nil {
+			errorconnnets := messageapi.Objectapi{
+				Status:  500,
+				Message: "Value",
+			}
+			return c.JSON(http.StatusCreated, errorconnnets)
+		} else {
+			for i := 0; i < len(param.ID); i++ {
+				tx.Table("t_order").Where("id = ?", param.ID[i]).Update("payment_id", param.Payment_id)
+			}
+			tx.Commit()
+			errorconnnet := messageapi.Objectapi{
+				Status:  200,
+				Message: "Successs",
+			}
+			writelog.Writelog(errorconnnet)
+			return c.JSON(http.StatusBadRequest, errorconnnet)
+		}
+	} else {
+		errorconnnet := messageapi.Objectapi{
+			Status:  500,
+			Message: "database disconnect",
+		}
+		writelog.Writelog(errorconnnet)
+		return c.JSON(http.StatusBadRequest, errorconnnet)
+	}
+}
 func Order(c echo.Context) error {
 	if connectdb.Connnectdb() {
 		tx := connectdb.DB.Begin()
-		var order []T_order
-		json.NewDecoder(c.Request().Body).Decode(&order)
-		err := tx.Table("t_order").Create(&order).Error
+		var orders []T_order
+		json.NewDecoder(c.Request().Body).Decode(&orders)
+		err := tx.Table("t_order").Create(&orders).Error
 		if err != nil {
 			tx.Rollback()
 			errorapi := messageapi.Objectapi{
@@ -77,7 +126,7 @@ func Order(c echo.Context) error {
 				Message: "create success",
 			}
 			writelog.Writelog(successapi)
-			return c.JSON(http.StatusOK, successapi)
+			return c.JSON(http.StatusOK, orders)
 		}
 
 	} else {
@@ -97,32 +146,37 @@ func Updateordercancel(c echo.Context) error {
 
 		var id Jsonbody
 		json.NewDecoder(c.Request().Body).Decode(&id)
-
-		if checkorder(id.ID) == 0 {
-			errorupdate := messageapi.Objectapi{
-				Status:  500,
-				Message: "order no exist",
-			}
-			writelog.Writelog(errorupdate)
-			return c.JSON(http.StatusBadRequest, errorupdate)
-		} else {
-			err := tx.Table("t_order").Where(" id = ?", id.ID).Update("status", 0).Error
-
-			if err != nil {
-				tx.Rollback()
+		checkvalidation.SqlInjection()
+		if _, err := govalidator.ValidateStruct(id); err != nil {
+			
+			return  c.JSON(http.StatusBadRequest, err)
+		}else{
+			if checkorder(id.ID) == 0 {
 				errorupdate := messageapi.Objectapi{
 					Status:  500,
-					Message: "update error",
+					Message: "order no exist",
 				}
 				writelog.Writelog(errorupdate)
 				return c.JSON(http.StatusBadRequest, errorupdate)
 			} else {
-				tx.Commit()
-				successupdate := messageapi.Objectapi{
-					Status:  200,
-					Message: "update success",
+				err := tx.Table("t_order").Where(" id = ?", id.ID).Update("status", 0).Error
+
+				if err != nil {
+					tx.Rollback()
+					errorupdate := messageapi.Objectapi{
+						Status:  500,
+						Message: "update error",
+					}
+					writelog.Writelog(errorupdate)
+					return c.JSON(http.StatusBadRequest, errorupdate)
+				} else {
+					tx.Commit()
+					successupdate := messageapi.Objectapi{
+						Status:  200,
+						Message: "update success",
+					}
+					return c.JSON(http.StatusOK, successupdate)
 				}
-				return c.JSON(http.StatusOK, successupdate)
 			}
 		}
 
