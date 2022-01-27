@@ -9,8 +9,9 @@ import (
 	"time"
 	"tranning_golang/model/connectdb"
 	"tranning_golang/model/messageapi"
+	checkvalidation "tranning_golang/model/validation"
 	"tranning_golang/model/writelog"
-	"tranning_golang/model/validation"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 )
@@ -45,8 +46,8 @@ type T_payment struct {
 	Date_update       time.Time
 }
 type UpdateOrder_Model struct {
-	ID         []int `valid:"required"`
-	Payment_id int   `valid:"required"`
+	ID         []int `valid:"required,SqlInjection"`
+	Payment_id int   `valid:"required,SqlInjection"`
 }
 
 //kiểm tra đơn hang tồn tại
@@ -76,8 +77,9 @@ func UpdateOrder(c echo.Context) error {
 	if connectdb.Connnectdb() {
 		tx := connectdb.DB.Begin()
 		var param UpdateOrder_Model
+		checkvalidation.SqlInjection()
 		json.NewDecoder(c.Request().Body).Decode(&param)
-		
+
 		if _, err := govalidator.ValidateStruct(param); err != nil {
 			errorconnnets := messageapi.Objectapi{
 				Status:  500,
@@ -148,9 +150,9 @@ func Updateordercancel(c echo.Context) error {
 		json.NewDecoder(c.Request().Body).Decode(&id)
 		checkvalidation.SqlInjection()
 		if _, err := govalidator.ValidateStruct(id); err != nil {
-			
-			return  c.JSON(http.StatusBadRequest, err)
-		}else{
+
+			return c.JSON(http.StatusBadRequest, err)
+		} else {
 			if checkorder(id.ID) == 0 {
 				errorupdate := messageapi.Objectapi{
 					Status:  500,
