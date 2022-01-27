@@ -17,6 +17,7 @@ require (
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	golang.org/x/text v0.3.6 // indirect
+	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5
 	gorm.io/driver/mysql v1.2.3 // indirect
 	gorm.io/gorm v1.22.5 // indirect
 )
