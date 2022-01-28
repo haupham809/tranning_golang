@@ -63,20 +63,19 @@ func main() {
 	e.GET("/products", product.GetProduct)
 	e.GET("/couponbyid", coupon.GetCouponByUserLogin)
 	e.GET("/getsuggest", product.GetProductSuggest)
-	
-	e.Logger.Fatal(e.Start(":1323"))
 
-	 
+	e.Logger.Fatal(e.Start(":1323"))
 }
+
 // kh moi type=2
 // kh tn type =1
+// khách hàng type = 0 là bình thường
 func CronTab() {
-	
 	if connectdb.Connnectdb() {
 		var result []User
 		tx := connectdb.DB.Begin()
 		connectdb.DB.Raw("select * from t_user").Scan(&result)
-		fmt.Println(len(result)) 
+		fmt.Println(len(result))
 		for i := 0; i < len(result); i++ {
 			var s = strconv.Itoa(result[i].ID)
 			if getCountdate(s) <= 7 {
@@ -96,7 +95,7 @@ func CronTab() {
 					}
 					writelog.Writelog(successapi)
 				}
-			}else if getCountorder(s) > 10 {
+			} else if getCountorder(s) > 10 {
 				err := tx.Table("t_user").Where("id = ?", result[i].ID).Update("type", 1).Error
 				if err != nil {
 					tx.Rollback()
@@ -114,7 +113,7 @@ func CronTab() {
 					writelog.Writelog(successapi)
 				}
 
-			}else{
+			} else {
 				err := tx.Table("t_user").Where("id = ?", result[i].ID).Update("type", 0).Error
 				if err != nil {
 					tx.Rollback()
@@ -133,8 +132,6 @@ func CronTab() {
 				}
 			}
 
-
-
 		}
 	} else {
 		errorconnnet := messageapi.Objectapi{
@@ -146,17 +143,19 @@ func CronTab() {
 }
 
 func getCountorder(id string) int {
-	var result  []order.T_order
-	connectdb.DB.Select("*").Table("t_order").Where("user_id = ?",id).Scan(&result)
-	
+	var result []order.T_order
+	connectdb.DB.Select("*").Table("t_order").Where("user_id = ?", id).Scan(&result)
+
 	return len(result)
 }
+
 type GetDateuser struct {
-	Date int 
+	Date int
 }
+
 func getCountdate(id string) int {
-	var result  GetDateuser
-	connectdb.DB.Select("DATEDIFF(CURRENT_TIMESTAMP ,date_created) as date").Table("t_user").Where("id = ?",id).Scan(&result)
+	var result GetDateuser
+	connectdb.DB.Select("DATEDIFF(CURRENT_TIMESTAMP ,date_created) as date").Table("t_user").Where("id = ?", id).Scan(&result)
 	fmt.Println(result)
 	return result.Date
 }
