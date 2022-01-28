@@ -45,21 +45,19 @@ type Payment struct {
 func main() {
 	
     c := cron.New()
-	c.AddFunc("* 0 * * *", CronTab)
-
+	// c.AddFunc("* 0 * * *", CronTab)
+	// c.AddFunc("@every 0h0m5s", CronTab)
 	c.Start()
-	
-
 	e := echo.New()
 	e.GET("/toppingforproduct", topping.ToppingForProduct)
 	e.GET("/coupon", coupon.GetCoupon)
 	e.GET("/detailproduct", product.DetailProduct)
 	e.GET("/sizeproduct", product.SizeProduct)
-	e.GET("/cancelorder", order.Updateordercancel)
+	e.PUT("/cancelorder", order.Updateordercancel)
 	e.POST("/savepayment", payment.SavePayment)
 	e.POST("/savecreditcard", payment.SaveCreditCard)
-	e.POST("/updatepaymentcancel", payment.Updatepaymentcancel)
-	e.POST("/refundmomo", payment.Refundmomo)
+	e.PUT("/updatepaymentcancel", payment.Updatepaymentcancel)
+	e.PUT("/refundmomo", payment.Refundmomo)
 	e.PUT("/updateorder", order.UpdateOrder)
 	e.POST("/order", order.Order)
 	e.GET("/products", product.GetProduct)

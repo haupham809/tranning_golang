@@ -113,7 +113,7 @@ func SizeProduct(c echo.Context) error {
 			writelog.Writelog(errorconnnet)
 			return c.JSON(http.StatusBadRequest, errorconnnet)
 		} else {
-			connectdb.DB.Select("* ").Where("t_size_product").Where("is_delete = 0").Where("product_id = ?", product_id).Scan(&result)
+			connectdb.DB.Select("*").Table("t_size_product").Where("is_delete = 0").Where("product_id = ?", product_id).Scan(&result)
 			return c.JSON(http.StatusOK, result)
 
 		}
