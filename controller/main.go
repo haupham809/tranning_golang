@@ -14,7 +14,6 @@ import (
 	"tranning_golang/model/writelog"
 
 	"github.com/labstack/echo"
-	"gopkg.in/robfig/cron.v2"
 )
 
 type User struct {
@@ -44,12 +43,6 @@ type Payment struct {
 
 func main() {
 
-	c := cron.New()
-	// c.AddFunc("* 0 * * *", CronTab)
-	c.AddFunc("@every 0h0m5s", CronTab)
-
-	c.Start()
-
 	e := echo.New()
 	e.GET("/toppingforproduct", topping.ToppingForProduct)
 	e.GET("/coupon", coupon.GetCoupon)
@@ -67,6 +60,11 @@ func main() {
 	e.GET("/getsuggest", product.GetProductSuggest)
 
 	e.Logger.Fatal(e.Start(":1323"))
+	// c := cron.New()
+
+	// c.AddFunc("@every 0h0m5s", CronTab)
+
+	// c.Start()
 }
 
 // kh moi type=2
