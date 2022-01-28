@@ -79,7 +79,7 @@ func UpdateOrder(c echo.Context) error {
 		var param UpdateOrder_Model
 		checkvalidation.SqlInjection()
 		json.NewDecoder(c.Request().Body).Decode(&param)
-
+		fmt.Println(param)
 		if _, err := govalidator.ValidateStruct(param); err != nil {
 			errorconnnets := messageapi.Objectapi{
 				Status:  500,
@@ -96,7 +96,7 @@ func UpdateOrder(c echo.Context) error {
 				Message: "Successs",
 			}
 			writelog.Writelog(errorconnnet)
-			return c.JSON(http.StatusBadRequest, errorconnnet)
+			return c.JSON(http.StatusOK, errorconnnet)
 		}
 	} else {
 		errorconnnet := messageapi.Objectapi{

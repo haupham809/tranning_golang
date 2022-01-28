@@ -31,10 +31,10 @@ type Payment struct {
 type Creditcard struct {
 	ID int 
 	Cc_number string `valid:"required,SqlInjection"`
-	Cc_expiry time.Time 
-	Cc_type_payment int`valid:"required,SqlInjection"`
-	Date_created time.Time 
-	Date_update time.Time 
+	Cc_expiry string  
+	Cc_type_payment int `valid:"required,SqlInjection"`
+	Date_created string 
+	Date_update string 
 	Is_delete  int 
 
 }
@@ -173,13 +173,14 @@ func SaveCreditCard(c echo.Context) error {
 		json.NewDecoder(c.Request().Body).Decode(&card)
 		checkvalidation.SqlInjection()
 
+		fmt.Println(card)
 		if _, err := govalidator.ValidateStruct(card); err != nil {
 			return c.JSON(http.StatusCreated, err)
 		} else {
 			if checkcreditcard(card.Cc_number) == 0 {
-				card.Date_created = time.Now()
-				card.Date_update = time.Now()
-				card.Cc_expiry = time.Now()
+				card.Date_created = time.Now().Format("2006-01-02 15:04:05")
+				card.Date_update = time.Now().Format("2006-01-02 15:04:05")
+				card.Cc_expiry = time.Now().Format("2006-01-02 15:04:05")
 				err := tx.Table("t_credit_card").Create(&card).Error
 
 				if err != nil {
